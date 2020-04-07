@@ -42,6 +42,10 @@ Class TC{
     static function viewpath($file){
         return self::path("/_app/views/".$file);
     }
+    static function viewjs($file,$theme=true,$ver=TC_VERSION){
+        $t = $theme?"/".self::get("theme")."/":"";
+        ?><script src="<?php echo self::viewpath($t.$file);?>?_tcshare_version=<?php echo $ver;?>"></script><?php
+    }
     static function human_filesize($size, $precision = 1) {
 		for($i = 0; ($size / 1024) > 1; $i++, $size /= 1024) {}
 		return round($size, $precision).(['B','KB','MB','GB','TB','PB','EB','ZB','YB'][$i]);
@@ -53,7 +57,7 @@ Class TC{
 	    ?>
             <script src="https://lib.baomitu.com/jquery/3.4.1/jquery.slim.min.js"></script>
             <script>window.TC=window.TC||{};TC.preview_exts=<?php echo json_encode(array_keys(self::get_preview_ext()));?></script>
-            <script src="<?php echo self::viewpath("/readypreview.js");?>"></script>
+            <?php echo self::viewjs("/readypreview.js",false);?>
         <?php
 	}
 	static function layout($vars=[],$callback=false){
@@ -82,7 +86,10 @@ Class TC{
             $cached="refreshed";
             $item->expiresAfter(300);
             $http = new Client([
-                'timeout'  => 10.0
+                'timeout'  => 10.0,
+                'headers'  =>[
+                    "User-Agent"=>"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/0.0.0.0 Safari/0.0"
+                ]
             ]);
             $response = $http->get($url);
             return (string)$response->getBody();
